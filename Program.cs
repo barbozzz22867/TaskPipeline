@@ -41,6 +41,7 @@ public sealed class ProjectService
         var seq = await SequentialProcessor.ProcessAsync(orders);
         Console.WriteLine($"Успешно: {seq.Results.Count}, Ошибок: {seq.Errors.Count}");
         // TODO 3: Создать bounded Channel для передачи заказов worker-ам.
+        await PipelineProcessor.RunChannelDemoAsync();
         // TODO 4: Запустить фиксированное число worker-ов.
         // TODO 5: Собирать успешные результаты и ошибки отдельно.
         // TODO 6: Показать backpressure при заполнении очереди.
