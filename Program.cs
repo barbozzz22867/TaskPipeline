@@ -56,6 +56,12 @@ public sealed class ProjectService
         try { OrderValidator.Validate(goodOrder); OrderCalculator.Calculate(goodOrder, 1); } catch { }
         try { OrderValidator.Validate(badOrder); } catch (Exception ex) { Console.WriteLine($"\n[Задание 8] Ошибка: {ex.Message}"); }
         // TODO 9: Сравнить производительность при разном числе worker-ов.
+        Console.WriteLine("\n[Задание 9] Сравнение производительности:");
+        foreach (int count in new[] { 1, 2, 4, 8 })
+        {
+            var (_, _, timeMs) = await PipelineProcessor.ProcessAsync(orders, count);
+            Console.WriteLine($"Воркеров: {count,2} | Время: {timeMs} мс");
+        }
         // TODO 10: Сохранять сводку в JSON.
 
         Console.WriteLine("Стартовый проект собран. Реализуйте задания варианта.");

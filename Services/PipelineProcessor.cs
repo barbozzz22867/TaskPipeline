@@ -117,4 +117,35 @@ public static class PipelineProcessor
         await Task.WhenAll(workers);
         Console.WriteLine("Все заказы переданы.");
     }
+    public static async Task<(List<OrderResult> Results, List<OrderError> Errors, long TimeMs)> ProcessAsync(IEnumerable<Order> orders, int workerCount)
+    {
+        var results = new System.Collections.Concurrent.ConcurrentBag<OrderResult>();
+        var errors = new System.Collections.Concurrent.ConcurrentBag<OrderError>();
+        var channel = System.Threading.Channels.Channel.CreateBounded<Order>(10);
+        var sw = System.Diagnostics.Stopwatch.StartNew();
+
+        var workers = Enumerable.Range(1, workerCount).Select(workerId => Task.Run(async () =>
+        {
+            await foreach (var order in channel.Reader.ReadAllAsync())
+            {
+                try
+                {
+                    var result = await SequentialProcessor.ProcessOrderAsync(order, workerId);
+                    results.Add(result);
+                }
+                catch (Exception ex)
+                {
+                    errors.Add(new OrderError(order.Id, order.CustomerName, ex.GetType().Name, ex.Message));
+                }
+            }
+        })).ToArray();
+
+        foreach (var order in orders) await channel.Writer.WriteAsync(order);
+
+        channel.Writer.Complete();
+        await Task.WhenAll(workers);
+        sw.Stop();
+
+        return (results.ToList(), errors.ToList(), sw.ElapsedMilliseconds);
+    }
 }
