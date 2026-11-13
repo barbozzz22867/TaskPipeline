@@ -45,6 +45,7 @@ public sealed class ProjectService
         // TODO 4: Запустить фиксированное число worker-ов.
         await PipelineProcessor.RunWorkersDemoAsync();
         // TODO 5: Собирать успешные результаты и ошибки отдельно.
+        await PipelineProcessor.RunResultsDemoAsync();
         // TODO 6: Показать backpressure при заполнении очереди.
         // TODO 7: Корректно завершать writer и дожидаться worker-ов.
 

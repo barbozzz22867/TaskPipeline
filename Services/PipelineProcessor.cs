@@ -53,4 +53,38 @@ public static class PipelineProcessor
 
         Console.WriteLine($"Всего обработано: {processedCount.Count}");
     }
+
+    public static async Task RunResultsDemoAsync()
+    {
+        var channel = Channel.CreateBounded<Order>(10);
+
+        // Задание 5: Отдельные коллекции для успехов и ошибок
+        var results = new ConcurrentBag<OrderResult>();
+        var errors = new ConcurrentBag<OrderError>();
+
+        var workers = Enumerable.Range(1, 4).Select(workerId => Task.Run(async () =>
+        {
+            await foreach (var order in channel.Reader.ReadAllAsync())
+            {
+                try
+                {
+                    var result = await SequentialProcessor.ProcessOrderAsync(order, workerId);
+                    results.Add(result); // Успех
+                }
+                catch (Exception ex)
+                {
+                    errors.Add(new OrderError(order.Id, order.CustomerName, ex.GetType().Name, ex.Message)); // Ошибка
+                }
+            }
+        })).ToArray();
+
+        // Генерируем 20 заказов (из них 2 будут с ошибкой)
+        var orders = OrderGenerator.Generate(20);
+        foreach (var order in orders) await channel.Writer.WriteAsync(order);
+
+        channel.Writer.Complete();
+        await Task.WhenAll(workers);
+
+        Console.WriteLine($"Успешно: {results.Count}, Ошибок: {errors.Count}");
+    }
 }
