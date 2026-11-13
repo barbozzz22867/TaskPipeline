@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace Variant20.Models;
 
-namespace TaskPipeline.models
-{
-    internal class OrderResult
-    {
-    }
-}
+public sealed record OrderResult(
+    int OrderId,
+    string CustomerName,
+    decimal FinalAmount,
+    int WorkerId
+);

@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace Variant20.Models;
 
-namespace TaskPipeline.models
-{
-    internal class OrderError
-    {
-    }
-}
+public sealed record OrderError(
+    int OrderId,
+    string CustomerName,
+    string ErrorType,
+    string Message
+);
