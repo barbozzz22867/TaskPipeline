@@ -43,6 +43,7 @@ public sealed class ProjectService
         // TODO 3: Создать bounded Channel для передачи заказов worker-ам.
         await PipelineProcessor.RunChannelDemoAsync();
         // TODO 4: Запустить фиксированное число worker-ов.
+        await PipelineProcessor.RunWorkersDemoAsync();
         // TODO 5: Собирать успешные результаты и ошибки отдельно.
         // TODO 6: Показать backpressure при заполнении очереди.
         // TODO 7: Корректно завершать writer и дожидаться worker-ов.
