@@ -51,7 +51,10 @@ public sealed class ProjectService
         // TODO 7: Корректно завершать writer и дожидаться worker-ов.
         Console.WriteLine("Программа не зависла, завершение корректное.");
         // TODO 8: Добавить отдельные этапы валидации и обработки.
-
+        var goodOrder = new Order { Id = 101, Amount = 500m, Quantity = 2 };
+        var badOrder = new Order { Id = 102, Amount = -100m, Quantity = 1 };
+        try { OrderValidator.Validate(goodOrder); OrderCalculator.Calculate(goodOrder, 1); } catch { }
+        try { OrderValidator.Validate(badOrder); } catch (Exception ex) { Console.WriteLine($"\n[Задание 8] Ошибка: {ex.Message}"); }
         // TODO 9: Сравнить производительность при разном числе worker-ов.
         // TODO 10: Сохранять сводку в JSON.
 
