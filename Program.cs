@@ -47,9 +47,11 @@ public sealed class ProjectService
         // TODO 5: Собирать успешные результаты и ошибки отдельно.
         await PipelineProcessor.RunResultsDemoAsync();
         // TODO 6: Показать backpressure при заполнении очереди.
+        await PipelineProcessor.RunBackpressureDemoAsync();
         // TODO 7: Корректно завершать writer и дожидаться worker-ов.
-
+        Console.WriteLine("Программа не зависла, завершение корректное.");
         // TODO 8: Добавить отдельные этапы валидации и обработки.
+
         // TODO 9: Сравнить производительность при разном числе worker-ов.
         // TODO 10: Сохранять сводку в JSON.
 

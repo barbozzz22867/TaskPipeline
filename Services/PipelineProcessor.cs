@@ -87,4 +87,34 @@ public static class PipelineProcessor
 
         Console.WriteLine($"Успешно: {results.Count}, Ошибок: {errors.Count}");
     }
+    public static async Task RunBackpressureDemoAsync()
+    {
+        // Канал всего на 2 элемента (чтобы быстро заполнился)
+        var channel = Channel.CreateBounded<Order>(2);
+        var workers = Enumerable.Range(1, 2).Select(_ => Task.Run(async () =>
+        {
+            await foreach (var order in channel.Reader.ReadAllAsync())
+                await Task.Delay(500); // Медленная обработка
+        })).ToArray();
+
+        var orders = OrderGenerator.Generate(10);
+        Console.WriteLine("Пытаемся записать 10 заказов в очередь (лимит 2)...");
+
+        for (int i = 0; i < orders.Count; i++)
+        {
+            var writeTask = channel.Writer.WriteAsync(orders[i]);
+
+            // Задание 6: Если запись не завершилась мгновенно — очередь заполнена!
+            if (!writeTask.IsCompleted)
+            {
+                Console.WriteLine($"[BACKPRESSURE] Канал заполнен! Ждем освобождения места для заказа #{orders[i].Id}...");
+            }
+
+            await writeTask;
+        }
+
+        channel.Writer.Complete();
+        await Task.WhenAll(workers);
+        Console.WriteLine("Все заказы переданы.");
+    }
 }
