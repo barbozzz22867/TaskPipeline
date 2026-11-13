@@ -4,18 +4,16 @@ namespace Variant20.Services;
 
 public static class SequentialProcessor
 {
-    // Метод для обработки одного заказа (понадобится и в конвейере)
     public static async Task<OrderResult> ProcessOrderAsync(Order order, int workerId)
     {
-        await Task.Delay(10); // Имитация работы
+        await Task.Delay(10); // Имитация задержки
 
-        if (order.Amount <= 0) throw new ArgumentException("Сумма должна быть > 0");
-        if (order.Quantity <= 0) throw new ArgumentException("Количество должно быть > 0");
-
-        decimal finalAmount = order.Amount * order.Quantity;
-        return new OrderResult(order.Id, order.CustomerName, finalAmount, workerId);
+        // Задание 8: Разделение этапов
+        OrderValidator.Validate(order);
+        return OrderCalculator.Calculate(order, workerId);
     }
 
+    // ... (метод ProcessAsync оставляем без изменений)
     public static async Task<(List<OrderResult> Results, List<OrderError> Errors, long TimeMs)> ProcessAsync(IEnumerable<Order> orders)
     {
         var results = new List<OrderResult>();
@@ -26,8 +24,7 @@ public static class SequentialProcessor
         {
             try
             {
-                var result = await ProcessOrderAsync(order, workerId: 1);
-                results.Add(result);
+                results.Add(await ProcessOrderAsync(order, 1));
             }
             catch (Exception ex)
             {
